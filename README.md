@@ -23,6 +23,8 @@ The **Refresh data** workflow (`.github/workflows/refresh_data.yml`) runs every 
 | `portwatch_chokepoints_daily.csv` | IMF PortWatch | Daily transits through ~28 chokepoints (Hormuz, Bab el-Mandeb, Suez, ...) |
 | `portwatch_ports_list.csv` | IMF PortWatch | ~2,000 ports with coordinates and trade shares |
 
+PortWatch's server cannot export the full daily tables reliably, so they are updated incrementally: each run starts from the copy in the release (or `data/seed/` on the first run), re-downloads the last two months plus anything newer one month at a time, and merges. A month that fails shows as a warning and keeps its previous rows.
+
 Direct download link for any file: `https://github.com/danaalsh/jeddah-port-logistics/releases/download/data-latest/<file>`
 
 ## Scripts

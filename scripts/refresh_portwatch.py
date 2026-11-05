@@ -1,18 +1,20 @@
-"""Download the latest IMF PortWatch data (updated weekly).
+"""Update the IMF PortWatch data (PortWatch itself updates weekly).
 
 Writes to OUT_DIR:
+  portwatch_ports_list.csv        all ~2,000 ports with coordinates (full CSV export, small)
   portwatch_ports_daily_SAU.csv   daily calls and trade estimates, Saudi ports only
   portwatch_chokepoints_daily.csv daily transits, all ~28 chokepoints
-  portwatch_ports_list.csv        all ~2,000 ports with coordinates
 
-The server times out on filtered queries over the full daily table (e.g. ISO3 = 'SAU'),
-so each dataset is fetched as its full CSV export and filtered locally. Large exports are
-generated on request (HTTP 202 "being generated", can take well over 15 minutes), so all
-exports are requested up front and then polled until ready. If one never arrives, its rows
-are listed by ObjectId year by year (a filter the server answers quickly) and fetched by ID;
-the layer does not support resultOffset paging.
+The two daily tables are updated incrementally. PortWatch's server cannot export or filter
+the full daily table reliably (exports fail, `ISO3 = ...` and whole-year ID lists time out,
+`resultOffset` paging is rejected), but it answers per-month requests. So the script starts
+from the copy already in OUT_DIR (or the seed in data/seed/), re-downloads the most recent
+REFETCH_MONTHS months plus anything newer, one month at a time, and merges.
 
-Usage: python refresh_portwatch.py OUT_DIR
+A month that fails is reported and the previous copy is kept. Exit code 1 only when a
+dataset has no data at all.
+
+Usage: python refresh_portwatch.py OUT_DIR [SEED_DIR]
 """
 import sys
 import time
@@ -23,135 +25,140 @@ import pandas as pd
 import requests
 
 PW = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services"
-DATASETS = [  # (service names to try, output file, row filter)
-    (("PortWatch_ports_database", "Ports_database", "PortWatch_Ports", "Ports"),
-     "portwatch_ports_list.csv", None),
-    (("Daily_Ports_Data",), "portwatch_ports_daily_SAU.csv", lambda c: c[c.ISO3 == "SAU"]),
-    (("Daily_Chokepoints_Data",), "portwatch_chokepoints_daily.csv", None),
+PORTS_LIST = (("PortWatch_ports_database", "Ports_database", "PortWatch_Ports", "Ports"), "portwatch_ports_list.csv")
+DAILY = [  # (service, output file, server-side filter to try first, local row filter)
+    ("Daily_Ports_Data", "portwatch_ports_daily_SAU.csv", "ISO3 = 'SAU'", lambda d: d[d.ISO3 == "SAU"]),
+    ("Daily_Chokepoints_Data", "portwatch_chokepoints_daily.csv", None, lambda d: d),
 ]
-EXPORT_WAIT_S = 60 * 60   # per dataset, counted from when its export was requested
-POLL_S = 30
+KEY = ["portid", "date"]
+REFETCH_MONTHS = 2   # PortWatch revises recent weeks, so the last months are always re-downloaded
 ID_CHUNK = 1000
+TRIES = 4
 
 
-def layer_meta(layer_url, tries=3):
+def get_json(url, method="get", tries=TRIES, **kw):
+    """JSON from the ArcGIS server, retrying timeouts, non-JSON pages and transient errors."""
     for attempt in range(tries):
-        meta = requests.get(layer_url, params={"f": "json"}, timeout=60).json()
-        if "error" not in meta:
-            return meta
-        print(f"  {layer_url.split('/services/')[1]}: {meta['error']}")
-        time.sleep(10 * (attempt + 1))
-    return None
+        try:
+            r = requests.request(method, url, timeout=300, **kw).json()
+            if "error" not in r:
+                return r
+            err = r["error"]
+        except (requests.RequestException, ValueError) as e:
+            err = f"{e.__class__.__name__}: {e}"
+        if attempt < tries - 1:
+            time.sleep(15 * (attempt + 1))
+    raise RuntimeError(err)
 
 
-def export_urls(item):
-    return [f"https://portwatch.imf.org/api/download/v1/items/{item}/csv?layers=0",
-            f"https://hub.arcgis.com/api/download/v1/items/{item}/csv?redirect=true&layers=0"]
+def query(layer_url, tries=TRIES, **params):
+    return get_json(f"{layer_url}/query", method="post", tries=tries, data={"f": "json", **params})
 
 
-def request_export(item):
-    """Ask the Hub to start generating an export; the response itself is not needed."""
-    try:
-        requests.get(export_urls(item)[0], timeout=60).close()
-    except requests.RequestException:
-        pass
+def ports_list(out):
+    """Small dataset: the full CSV export works."""
+    services, name = PORTS_LIST
+    for service in services:
+        try:
+            item = get_json(f"{PW}/{service}/FeatureServer/0", params={"f": "json"}).get("serviceItemId")
+        except RuntimeError:
+            continue
+        r = requests.get(f"https://portwatch.imf.org/api/download/v1/items/{item}/csv?layers=0", timeout=300)
+        if r.status_code == 200 and not r.text.lstrip().startswith(("<", "{")):
+            (out / name).write_bytes(r.content)
+            print(f"{name}: {len(pd.read_csv(out / name)):,} rows")
+            return True
+        print(f"{name}: export HTTP {r.status_code} {r.text[:120]!r}")
+    return False
 
 
-def bulk_csv(item, dest, deadline):
-    """Full CSV export via the ArcGIS Hub item ID, waiting while it is generated. True on success."""
-    last = None
-    while True:
-        for url in export_urls(item):
-            with requests.get(url, stream=True, timeout=900) as r:
-                head = r.raw.read(300, decode_content=True)
-                if r.status_code == 200 and not head.lstrip().startswith((b"<", b"{")) and b"," in head:
-                    with open(dest, "wb") as f:
-                        f.write(head)
-                        for block in r.iter_content(1 << 20):
-                            f.write(block)
-                    return True
-                status = f"HTTP {r.status_code} {head[:110].decode('utf-8', 'replace')!r}"
-                if status != last:  # log changes only, not every poll
-                    print(f"  export not ready ({url.split('/api/')[0]}): {status}")
-                    last = status
-        if time.monotonic() > deadline:
-            return False
-        time.sleep(POLL_S)
+def month_ids(layer_url, y, m, server_filter):
+    """The month's ObjectIds, and the server-side filter if it worked (None once it has failed).
+    The filter is optional (rows are also filtered locally), so it gets one try."""
+    base = f"year = {y} AND month = {m}"
+    if server_filter:
+        try:
+            r = query(layer_url, tries=1, where=f"{base} AND {server_filter}", returnIdsOnly="true")
+            return sorted(r.get("objectIds") or []), server_filter
+        except RuntimeError as e:
+            print(f"  {y}-{m:02d}: '{server_filter}' filter failed ({e}); not using it for the rest of this run")
+    return sorted(query(layer_url, where=base, returnIdsOnly="true").get("objectIds") or []), None
 
 
-def query(layer_url, **params):
-    r = requests.post(f"{layer_url}/query", data={"f": "json", **params}, timeout=300).json()
-    if "error" in r:
-        raise RuntimeError(f"{params.get('where', 'objectIds')}: {r['error']}")
-    return r
-
-
-def by_ids(layer_url, meta, keep):
-    """List ObjectIds year by year (or all at once if there is no `year` field), then fetch by ID."""
-    years = range(2019, date.today().year + 1) if any(f["name"] == "year" for f in meta["fields"]) else [None]
-    chunk = min(meta.get("maxRecordCount") or ID_CHUNK, ID_CHUNK)
+def month_rows(layer_url, meta, ids, keep):
+    """Fetch the given ObjectIds in chunks."""
     parts = []
-    for y in years:
-        ids = sorted(query(layer_url, where=f"year = {y}" if y else "1=1", returnIdsOnly="true").get("objectIds") or [])
-        for i in range(0, len(ids), chunk):
-            r = query(layer_url, objectIds=",".join(map(str, ids[i:i + chunk])), outFields="*", returnGeometry="false")
-            batch = pd.DataFrame([f["attributes"] for f in r["features"]])
-            if not batch.empty:
-                parts.append(keep(batch) if keep else batch)
-        print(f"  {y or 'all'}: {len(ids):,} rows listed, {sum(len(p) for p in parts):,} kept so far")
-    df = pd.concat(parts, ignore_index=True)
-    for f in meta["fields"]:  # query results send datetimes as milliseconds since 1970
+    for i in range(0, len(ids), ID_CHUNK):
+        r = query(layer_url, objectIds=",".join(map(str, ids[i:i + ID_CHUNK])), outFields="*", returnGeometry="false")
+        parts.append(pd.DataFrame([f["attributes"] for f in r["features"]]))
+    df = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+    for f in meta["fields"]:  # datetime fields arrive as milliseconds since 1970
         if f["type"] == "esriFieldTypeDate" and f["name"] in df:
             df[f["name"]] = pd.to_datetime(df[f["name"]], unit="ms")
-    return df
+    return keep(df) if len(df) else df
 
 
-def resolve(services):
-    """First service name that answers, with its layer URL and metadata."""
-    for service in services:
-        url = f"{PW}/{service}/FeatureServer/0"
-        meta = layer_meta(url)
-        if meta:
-            return service, url, meta
-    raise RuntimeError(f"none of {services} answered")
+def update_daily(out, seed_dir, service, name, server_filter, keep):
+    """Merge freshly downloaded recent months into the existing copy. Returns False if no data at all."""
+    path = out / name
+    seed = seed_dir / f"{name}.gz" if seed_dir else None
+    old = pd.read_csv(path) if path.exists() else pd.read_csv(seed) if seed and seed.exists() else pd.DataFrame()
+    if len(old):
+        old["date"] = pd.to_datetime(old.date).dt.strftime("%Y-%m-%d")
+        last = pd.Timestamp(old.date.max())
+        start = (last - pd.DateOffset(months=REFETCH_MONTHS - 1)).replace(day=1)
+        print(f"{name}: have {len(old):,} rows to {last:%Y-%m-%d}; refreshing from {start:%Y-%m}")
+    else:
+        start = pd.Timestamp("2019-01-01")
+        print(f"{name}: no existing copy; downloading everything from 2019 (slow)")
 
+    url = f"{PW}/{service}/FeatureServer/0"
+    try:
+        meta = get_json(url, params={"f": "json"})
+    except RuntimeError as e:
+        print(f"::warning::{name}: PortWatch layer unavailable ({e}); keeping the existing copy")
+        return save(old, path)
 
-def fetch(service, url, meta, keep, tmp, deadline):
-    item = meta.get("serviceItemId")
-    print(f"{service}: item {item}")
-    if item and bulk_csv(item, tmp, deadline):
-        df = pd.concat((keep(c) if keep else c) for c in pd.read_csv(tmp, chunksize=200_000))
-        tmp.unlink()
-        return df
-    print(f"{service}: no CSV export in time, fetching rows by ObjectId instead")
-    return by_ids(url, meta, keep)
-
-
-def main(out):
-    out.mkdir(parents=True, exist_ok=True)
-    tmp = out / "_download.csv"
-    jobs, failed = [], []
-    for services, name, keep in DATASETS:  # request every export first so they generate in parallel
+    new, failed = [], []
+    for p in pd.period_range(start, date.today(), freq="M"):
         try:
-            service, url, meta = resolve(services)
-            if meta.get("serviceItemId"):
-                request_export(meta["serviceItemId"])
-            jobs.append((name, keep, service, url, meta, time.monotonic() + EXPORT_WAIT_S))
-        except (requests.RequestException, RuntimeError, ValueError) as e:
-            print(f"{name}: FAILED ({e.__class__.__name__}: {e})")
-            failed.append(name)
-    for name, keep, service, url, meta, deadline in jobs:
-        try:
-            df = fetch(service, url, meta, keep, tmp, deadline)
-            df.to_csv(out / name, index=False)
-            print(f"{name}: {len(df):,} rows")
-        except (requests.RequestException, RuntimeError, ValueError) as e:
-            print(f"{name}: FAILED ({e.__class__.__name__}: {e})")
-            failed.append(name)
-        tmp.unlink(missing_ok=True)
+            ids, server_filter = month_ids(url, p.year, p.month, server_filter)
+            rows = month_rows(url, meta, ids, keep)
+            print(f"  {p}: {len(rows):,} rows")
+            if len(rows):
+                new.append(rows)
+        except RuntimeError as e:
+            print(f"  {p}: FAILED ({e})")
+            failed.append(str(p))
     if failed:
-        sys.exit(f"failed: {', '.join(failed)}")
+        print(f"::warning::{name}: months {', '.join(failed)} could not be downloaded; previous rows kept for them")
+    if new:
+        fresh = pd.concat(new, ignore_index=True)
+        fresh["date"] = pd.to_datetime(fresh.date).dt.strftime("%Y-%m-%d")
+        old = pd.concat([old, fresh], ignore_index=True).drop_duplicates(KEY, keep="last")
+    return save(old, path)
+
+
+def save(df, path):
+    if not len(df):
+        print(f"{path.name}: no data")
+        return False
+    df = df.sort_values(KEY[::-1]).reset_index(drop=True)
+    df.to_csv(path, index=False)
+    print(f"{path.name}: {len(df):,} rows, {df.date.min()} to {df.date.max()}")
+    return True
+
+
+def main(out, seed_dir=None):
+    out.mkdir(parents=True, exist_ok=True)
+    ok = ports_list(out) or (out / PORTS_LIST[1]).exists()
+    if not ok:
+        print(f"::warning::{PORTS_LIST[1]}: download failed and no previous copy")
+    results = [update_daily(out, seed_dir, *d) for d in DAILY]
+    if not (ok and all(results)):
+        sys.exit("a PortWatch dataset has no data")
 
 
 if __name__ == "__main__":
-    main(Path(sys.argv[1] if len(sys.argv) > 1 else "."))
+    main(Path(sys.argv[1] if len(sys.argv) > 1 else "."),
+         Path(sys.argv[2]) if len(sys.argv) > 2 else None)

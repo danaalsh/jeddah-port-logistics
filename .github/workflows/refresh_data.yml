@@ -14,7 +14,7 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-24.04
-    timeout-minutes: 240   # PortWatch can take an hour or more to generate large exports
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v5
 
@@ -33,10 +33,18 @@ jobs:
         continue-on-error: true
         run: bash scripts/refresh_osm.sh data_out
 
+      - name: Previous PortWatch data (updated incrementally)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p data_out
+          gh release download data-latest -D data_out -p 'portwatch_*_daily*.csv' --clobber \
+            || echo "no previous copy in the release; the script starts from data/seed"
+
       - name: IMF PortWatch
         id: portwatch
         continue-on-error: true
-        run: python -u scripts/refresh_portwatch.py data_out
+        run: python -u scripts/refresh_portwatch.py data_out data/seed
 
       - name: Publish to the data-latest release
         if: steps.osm.outcome == 'success' || steps.portwatch.outcome == 'success'
