@@ -1,0 +1,64 @@
+name: Refresh data
+
+# Weekly download of the latest OpenStreetMap (Geofabrik) and IMF PortWatch data.
+# Files are published as assets of the `data-latest` release (replaced each run), not
+# committed, so the repository does not grow by ~50 MB a week.
+on:
+  schedule:
+    - cron: "17 3 * * 2"   # Tuesdays 03:17 UTC (PortWatch updates weekly)
+  workflow_dispatch:       # "Run workflow" button in the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq osmium-tool
+          pip install -q pandas requests
+
+      - name: OpenStreetMap extract (GCC)
+        id: osm
+        continue-on-error: true
+        run: bash scripts/refresh_osm.sh data_out
+
+      - name: IMF PortWatch
+        id: portwatch
+        continue-on-error: true
+        run: python scripts/refresh_portwatch.py data_out
+
+      - name: Publish to the data-latest release
+        if: steps.osm.outcome == 'success' || steps.portwatch.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "Refreshed $(date -u +%Y-%m-%dT%H:%MZ) by the Refresh data workflow."
+            echo
+            echo "- OpenStreetMap: ${{ steps.osm.outcome }} (snapshot $(cat data_out/osm_date.txt 2>/dev/null || echo 'n/a'))"
+            echo "- PortWatch: ${{ steps.portwatch.outcome }}"
+            echo
+            echo "Files:"
+            ls -l data_out | awk 'NR>1 {printf "- %s (%.1f MB)\n", $9, $5/1048576}'
+          } > notes.md
+          gh release view data-latest >/dev/null 2>&1 || \
+            gh release create data-latest --title "Latest data" --notes "Created by the Refresh data workflow."
+          gh release upload data-latest data_out/* --clobber
+          gh release edit data-latest --notes-file notes.md
+
+      - name: Fail if any source failed
+        if: steps.osm.outcome != 'success' || steps.portwatch.outcome != 'success'
+        run: |
+          echo "OpenStreetMap: ${{ steps.osm.outcome }}, PortWatch: ${{ steps.portwatch.outcome }}"
+          exit 1

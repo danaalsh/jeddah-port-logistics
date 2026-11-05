@@ -1,0 +1,16 @@
+# Large or generated data: published to the data-latest release or rebuilt by the notebooks
+*.osm
+*.osm.pbf
+*.gpkg
+*.gpkg-shm
+*.gpkg-wal
+*.qgz
+data_out/
+out/
+osm_date.txt
+pw_download.csv
+
+# Python / Jupyter
+__pycache__/
+.ipynb_checkpoints/
+.venv/
