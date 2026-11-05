@@ -13,12 +13,12 @@ permissions:
 
 jobs:
   refresh:
-    runs-on: ubuntu-latest
-    timeout-minutes: 90
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150   # large PortWatch exports can take a while to generate
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -36,7 +36,7 @@ jobs:
       - name: IMF PortWatch
         id: portwatch
         continue-on-error: true
-        run: python scripts/refresh_portwatch.py data_out
+        run: python -u scripts/refresh_portwatch.py data_out
 
       - name: Publish to the data-latest release
         if: steps.osm.outcome == 'success' || steps.portwatch.outcome == 'success'
