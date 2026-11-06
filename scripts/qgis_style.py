@@ -91,6 +91,30 @@ L["constraints"].setRenderer(QgsSingleSymbolRenderer(marker("triangle", "#e67e22
 labels(L["constraints"], "\"kind\"", size=8, color="#a04000")
 L["shipments"] = lyr("shipments", "Shipments")
 
+# Simulation layers (notebook 02), if present: one colour per scenario, baseline shown by default
+SCENARIO_COLORS = {"baseline": "#2a78d6", "hormuz_closed": "#eb6834", "babelmandeb_closed": "#1baf7a",
+                   "both_closed": "#eda100"}
+SIM = [n for n in ("sim_road_legs", "sim_sea_legs", "sim_ports", "sim_destinations")
+       if QgsVectorLayer(f"{gpkg}|layername={n}", n, "ogr").isValid()]
+if "sim_road_legs" in SIM:
+    L["sim_road_legs"] = lyr("sim_road_legs", "Routes by scenario (road)")
+    rules(L["sim_road_legs"], [(sc.replace("_", " ").capitalize(), f"\"scenario\" = '{sc}'", line(c, 0.8), sc == "baseline", 0)
+                               for sc, c in SCENARIO_COLORS.items()])
+if "sim_sea_legs" in SIM:
+    L["sim_sea_legs"] = lyr("sim_sea_legs", "Routes by scenario (sea)")
+    rules(L["sim_sea_legs"], [(sc.replace("_", " ").capitalize(), f"\"scenario\" = '{sc}' AND \"used\"",
+                               line(c, 0.5, "dash"), sc == "baseline", 0) for sc, c in SCENARIO_COLORS.items()])
+if "sim_ports" in SIM:
+    L["sim_ports"] = lyr("sim_ports", "Ports in the model")
+    L["sim_ports"].setRenderer(QgsSingleSymbolRenderer(marker("square", "#0b0b0b", 2.8)))
+    labels(L["sim_ports"], "\"port_key\" || ' ' || \"name\"", size=8)
+if "sim_destinations" in SIM:
+    L["sim_destinations"] = lyr("sim_destinations", "Destinations in the model")
+    rules(L["sim_destinations"], [
+        ("Industrial city", "\"type\" = 'industrial_city'", marker("triangle", "#6250d6", 3.0), True, 0),
+        ("City", "\"type\" <> 'industrial_city'", marker("circle", "#52514e", 2.2), True, 0)])
+    labels(L["sim_destinations"], "\"name\"", size=7.5, color="#52514e")
+
 # Default styles inside the GeoPackage, plus QML copies the notebook can re-apply to a fresh file
 (out / "styles").mkdir(exist_ok=True)
 for name, l in L.items():
@@ -111,6 +135,11 @@ base = QgsRasterLayer("type=xyz&url=https://server.arcgisonline.com/ArcGIS/rest/
 osm = QgsRasterLayer("type=xyz&url=https://tile.openstreetmap.org/%7Bz%7D/%7Bx%7D/%7By%7D.png&zmax=19&zmin=0",
                      "Basemap (OpenStreetMap)", "wms")
 root = p.layerTreeRoot()
+if SIM:
+    simg = root.addGroup("Simulation (notebook 02)")
+    for name in ("sim_ports", "sim_destinations", "sim_sea_legs", "sim_road_legs"):
+        if name in L:
+            p.addMapLayer(L[name], False); simg.addLayer(L[name])
 yours = root.addGroup("Your data (to fill in)")
 for name in ("port_gates", "constraints", "shipments"):
     p.addMapLayer(L[name], False); yours.addLayer(L[name])
