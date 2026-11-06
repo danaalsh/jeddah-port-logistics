@@ -32,6 +32,7 @@ DAILY = [  # (service, output file, server-side filter to try first, local row f
 ]
 KEY = ["portid", "date"]
 REFETCH_MONTHS = 2   # PortWatch revises recent weeks, so the last months are always re-downloaded
+GAP_LOOKBACK_MONTHS = 12   # months with no rows this far back are retried (an earlier run failed them)
 ID_CHUNK = 1000
 TRIES = 4
 
@@ -107,9 +108,14 @@ def update_daily(out, seed_dir, service, name, server_filter, keep):
         old["date"] = pd.to_datetime(old.date).dt.strftime("%Y-%m-%d")
         last = pd.Timestamp(old.date.max())
         start = (last - pd.DateOffset(months=REFETCH_MONTHS - 1)).replace(day=1)
-        print(f"{name}: have {len(old):,} rows to {last:%Y-%m-%d}; refreshing from {start:%Y-%m}")
+        have = set(pd.PeriodIndex(old.date, freq="M"))
+        gaps = [p for p in pd.period_range(last - pd.DateOffset(months=GAP_LOOKBACK_MONTHS), start, freq="M")
+                if p not in have and p < start.to_period("M")]
+        months = gaps + list(pd.period_range(start, date.today(), freq="M"))
+        print(f"{name}: have {len(old):,} rows to {last:%Y-%m-%d}; refreshing from {start:%Y-%m}"
+              + (f", plus missing months {', '.join(map(str, gaps))}" if gaps else ""))
     else:
-        start = pd.Timestamp("2019-01-01")
+        months = list(pd.period_range("2019-01", date.today(), freq="M"))
         print(f"{name}: no existing copy; downloading everything from 2019 (slow)")
 
     url = f"{PW}/{service}/FeatureServer/0"
@@ -120,7 +126,7 @@ def update_daily(out, seed_dir, service, name, server_filter, keep):
         return save(old, path)
 
     new, failed = [], []
-    for p in pd.period_range(start, date.today(), freq="M"):
+    for p in months:
         try:
             ids, server_filter = month_ids(url, p.year, p.month, server_filter)
             rows = month_rows(url, meta, ids, keep)
