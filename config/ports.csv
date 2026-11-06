@@ -1,0 +1,11 @@
+port_key,portwatch_id,name,country,sea_area,handling_usd_per_teu,dwell_days,status,note
+JED,port518,Jeddah Islamic Port,SAU,Red Sea,150,3,dummy,
+KAP,port2031,King Abdullah Port,SAU,Red Sea,150,3,dummy,
+DMM,port275,King Abdulaziz Port Dammam,SAU,Gulf (inside Hormuz),150,3,dummy,
+JUB,port24,Jubail Commercial Port,SAU,Gulf (inside Hormuz),150,3,dummy,
+JEA,port744,Jebel Ali,ARE,Gulf (inside Hormuz),150,2,dummy,
+KHL,port2025,Khalifa Port,ARE,Gulf (inside Hormuz),150,2,dummy,
+KFK,port561,Khor Fakkan,ARE,Gulf of Oman (outside Hormuz),150,2,dummy,
+SOH,port988,Sohar,OMN,Gulf of Oman (outside Hormuz),150,2.5,dummy,
+DUQ,port984,Duqm,OMN,Arabian Sea,150,2.5,dummy,
+SLL,port746,Salalah,OMN,Arabian Sea,150,2.5,dummy,

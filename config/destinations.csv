@@ -1,0 +1,13 @@
+dest_id,name,type,lat,lon,source,verified
+MAKKAH,Makkah,city,21.42,39.83,approx city centre,False
+MADINAH,Madinah,city,24.47,39.61,approx city centre,False
+TAIF,Taif,city,21.27,40.42,approx city centre,False
+RABIGH,Rabigh,city,22.80,39.03,approx city centre,False
+YANBU,Yanbu,city,24.09,38.06,approx city centre,False
+RIYADH,Riyadh,city,24.71,46.68,approx city centre,False
+BURAYDAH,Buraydah,city,26.33,43.97,approx city centre,False
+DAMMAM,Dammam,city,26.43,50.10,approx city centre,False
+JUBAIL,Jubail,city,27.00,49.66,approx city centre,False
+ABHA,Abha,city,18.22,42.50,approx city centre,False
+JAZAN,Jazan,city,16.89,42.55,approx city centre,False
+TABUK,Tabuk,city,28.38,36.57,approx city centre,False

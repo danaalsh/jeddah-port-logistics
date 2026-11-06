@@ -1,0 +1,9 @@
+# Python packages for the notebooks, sim/ and scripts/ (QGIS styling needs PyQGIS separately)
+osmnx>=2.0
+geopandas>=1.0
+pyogrio
+searoute>=1.6
+osmium>=4.0
+requests
+matplotlib
+pytest

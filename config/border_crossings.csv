@@ -1,0 +1,8 @@
+name,countries,lat,lon,radius_m,delay_h,fee_usd_per_truck,status,source
+Al Batha - Ghuwaifat,SAU-ARE,24.1265,51.600,4000,8,50,dummy delay and fee,location: OSM barrier=border_control nodes
+Empty Quarter (Rub al Khali),SAU-OMN,22.2150,55.527,3000,4,50,dummy delay and fee,location: OSM barrier=border_control nodes
+Khatmat Milaha,ARE-OMN,24.9830,56.362,1500,3,30,dummy delay and fee,location: OSM barrier=border_control nodes
+Hatta - Al Wajajah,ARE-OMN,24.7980,56.240,4500,3,30,dummy delay and fee,location: OSM barrier=border_control nodes
+Hili (Al Ain - Buraimi),ARE-OMN,24.2475,55.768,1500,3,30,dummy delay and fee,location: OSM barrier=border_control nodes
+Khatm Al Shikla,ARE-OMN,24.2140,55.957,1000,3,30,dummy delay and fee,location: OSM barrier=border_control nodes
+Mezyad,ARE-OMN,24.0180,55.847,1000,3,30,dummy delay and fee,location: OSM barrier=border_control nodes

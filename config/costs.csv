@@ -1,0 +1,13 @@
+parameter,value,unit,status,source,note
+sea_usd_per_teu_per_1000nm,150,USD per TEU per 1000 nautical miles,dummy,,Base ocean freight; roughly USD 1000 per TEU for Shanghai-Jeddah. Replace with Drewry/Freightos lane rates.
+ship_speed_knots,16,knots,dummy,,Typical slow-steaming container ship speed.
+suez_fee_usd_per_teu,100,USD per TEU,dummy,,Suez Canal transit charge passed on to cargo.
+war_risk_babalmandab_usd_per_teu,300,USD per TEU,dummy,,War-risk insurance and surcharges for routes through Bab el-Mandeb.
+war_risk_ormuz_usd_per_teu,300,USD per TEU,dummy,,War-risk insurance and surcharges for routes through the Strait of Hormuz.
+storage_usd_per_teu_day,20,USD per TEU per day,dummy,,Terminal storage while the container waits in port.
+cargo_value_usd_per_teu,50000,USD per TEU,dummy,,Cargo value; sets the cost of time in transit (inventory holding).
+holding_rate_per_year,0.10,fraction per year,dummy,,Annual inventory holding cost as a share of cargo value.
+truck_teu_per_truck,2,TEU per truck,estimated,,One 40-foot container (2 TEU) per truck.
+truck_usd_per_km,1.2,USD per truck-km,dummy,,"Fuel, tyres, maintenance, depreciation. Replace with TGA freight rates or interview figures."
+truck_usd_per_hour,20,USD per truck-hour,dummy,,Driver and time-based truck costs; also charged while waiting at borders.
+truck_max_kph,80,km/h,dummy,,Heavy-vehicle speed cap used for truck travel time; set from the regulation you cite.
