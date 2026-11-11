@@ -2,14 +2,16 @@
 
 Writes to OUT_DIR:
   portwatch_ports_list.csv        all ~2,000 ports with coordinates (full CSV export, small)
-  portwatch_ports_daily_SAU.csv   daily calls and trade estimates, Saudi ports only
+  portwatch_ports_daily_SAU.csv   daily calls and trade estimates, Saudi ports only (from 2019)
+  portwatch_ports_daily_ARE_OMN.csv  the same for UAE and Oman ports (from 2025, for the Hormuz comparison)
   portwatch_chokepoints_daily.csv daily transits, all ~28 chokepoints
 
 The two daily tables are updated incrementally. PortWatch's server cannot export or filter
 the full daily table reliably (exports fail, `ISO3 = ...` and whole-year ID lists time out,
 `resultOffset` paging is rejected), but it answers per-month requests. So the script starts
 from the copy already in OUT_DIR (or the seed in data/seed/), re-downloads the most recent
-REFETCH_MONTHS months plus anything newer, one month at a time, and merges.
+REFETCH_MONTHS months plus anything newer, one month at a time, and merges. Months since a
+dataset's history start that have no rows (a failed download) are retried on every run.
 
 A month that fails is reported and the previous copy is kept. Exit code 1 only when a
 dataset has no data at all.
@@ -26,13 +28,14 @@ import requests
 
 PW = "https://services9.arcgis.com/weJ1QsnbMYJlCHdG/arcgis/rest/services"
 PORTS_LIST = (("PortWatch_ports_database", "Ports_database", "PortWatch_Ports", "Ports"), "portwatch_ports_list.csv")
-DAILY = [  # (service, output file, server-side filter to try first, local row filter)
-    ("Daily_Ports_Data", "portwatch_ports_daily_SAU.csv", "ISO3 = 'SAU'", lambda d: d[d.ISO3 == "SAU"]),
-    ("Daily_Chokepoints_Data", "portwatch_chokepoints_daily.csv", None, lambda d: d),
+DAILY = [  # (service, output file, server-side filter to try first, local row filter, history start)
+    ("Daily_Ports_Data", "portwatch_ports_daily_SAU.csv", "ISO3 = 'SAU'", lambda d: d[d.ISO3 == "SAU"], "2019-01"),
+    ("Daily_Ports_Data", "portwatch_ports_daily_ARE_OMN.csv", "ISO3 IN ('ARE', 'OMN')",
+     lambda d: d[d.ISO3.isin(["ARE", "OMN"])], "2025-01"),
+    ("Daily_Chokepoints_Data", "portwatch_chokepoints_daily.csv", None, lambda d: d, "2019-01"),
 ]
 KEY = ["portid", "date"]
 REFETCH_MONTHS = 2   # PortWatch revises recent weeks, so the last months are always re-downloaded
-GAP_LOOKBACK_MONTHS = 12   # months with no rows this far back are retried (an earlier run failed them)
 ID_CHUNK = 1000
 TRIES = 4
 
@@ -99,7 +102,7 @@ def month_rows(layer_url, meta, ids, keep):
     return keep(df) if len(df) else df
 
 
-def update_daily(out, seed_dir, service, name, server_filter, keep):
+def update_daily(out, seed_dir, service, name, server_filter, keep, history_start):
     """Merge freshly downloaded recent months into the existing copy. Returns False if no data at all."""
     path = out / name
     seed = seed_dir / f"{name}.gz" if seed_dir else None
@@ -109,14 +112,13 @@ def update_daily(out, seed_dir, service, name, server_filter, keep):
         last = pd.Timestamp(old.date.max())
         start = (last - pd.DateOffset(months=REFETCH_MONTHS - 1)).replace(day=1)
         have = set(pd.PeriodIndex(old.date, freq="M"))
-        gaps = [p for p in pd.period_range(last - pd.DateOffset(months=GAP_LOOKBACK_MONTHS), start, freq="M")
-                if p not in have and p < start.to_period("M")]
+        gaps = [p for p in pd.period_range(history_start, start, freq="M") if p not in have and p < start.to_period("M")]
         months = gaps + list(pd.period_range(start, date.today(), freq="M"))
         print(f"{name}: have {len(old):,} rows to {last:%Y-%m-%d}; refreshing from {start:%Y-%m}"
               + (f", plus missing months {', '.join(map(str, gaps))}" if gaps else ""))
     else:
-        months = list(pd.period_range("2019-01", date.today(), freq="M"))
-        print(f"{name}: no existing copy; downloading everything from 2019 (slow)")
+        months = list(pd.period_range(history_start, date.today(), freq="M"))
+        print(f"{name}: no existing copy; downloading everything from {history_start} (slow)")
 
     url = f"{PW}/{service}/FeatureServer/0"
     try:

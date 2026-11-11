@@ -47,6 +47,7 @@ The **Refresh data** workflow (`.github/workflows/refresh_data.yml`) runs every 
 | `gcc_extras.osm.pbf` | same | Industrial areas, ports, harbours, railways |
 | `osm_date.txt` | same | OSM snapshot timestamp, for citation |
 | `portwatch_ports_daily_SAU.csv` | IMF PortWatch | Daily ship calls and estimated trade by vessel type, Saudi ports, from 2019 |
+| `portwatch_ports_daily_ARE_OMN.csv` | IMF PortWatch | The same for UAE and Oman ports, from 2025 (to check where Gulf traffic went after Hormuz closed) |
 | `portwatch_chokepoints_daily.csv` | IMF PortWatch | Daily transits through ~28 chokepoints (Hormuz, Bab el-Mandeb, Suez, ...) |
 | `portwatch_ports_list.csv` | IMF PortWatch | ~2,000 ports with coordinates and trade shares |
 
