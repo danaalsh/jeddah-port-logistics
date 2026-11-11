@@ -1,0 +1,24 @@
+parameter,value,unit,status,note
+sea_usd_per_t_per_1000nm_tanker,2.0,USD per tonne per 1000 nm,dummy,VLCC-scale crude freight
+sea_usd_per_t_per_1000nm_dry_bulk,4.0,USD per tonne per 1000 nm,dummy,Supramax-scale bulk freight
+sea_usd_per_t_per_1000nm_container,15.0,USD per tonne per 1000 nm,dummy,About USD 150 per TEU per 1000 nm at 10 t per TEU
+ship_speed_knots_tanker,13,knots,estimated,
+ship_speed_knots_dry_bulk,13,knots,estimated,
+ship_speed_knots_container,16,knots,estimated,
+port_usd_per_t_tanker,1.0,USD per tonne,dummy,Terminal and port dues
+port_usd_per_t_dry_bulk,6.0,USD per tonne,dummy,
+port_usd_per_t_container,15.0,USD per tonne,dummy,About USD 150 per TEU
+port_days_tanker,1,days,dummy,
+port_days_dry_bulk,3,days,dummy,
+port_days_container,3,days,dummy,
+truck_usd_per_t_km,0.06,USD per tonne-km,dummy,About USD 1.2 per truck-km at 20 t per truck
+truck_usd_per_t_hour,1.0,USD per tonne-hour,dummy,About USD 20 per truck-hour at 20 t; also charged while waiting at borders
+truck_t_per_truck,20,tonnes per truck,estimated,For border fees per truck
+pipeline_usd_per_t_per_100km,0.3,USD per tonne per 100 km,dummy,Pipeline tariff
+pipeline_kmh,10,km per hour,dummy,Average crude transit speed through the pipeline
+suez_fee_usd_per_t,6.0,USD per tonne,dummy,Suez Canal transit charge passed on to cargo
+war_risk_base_pct,0.05,% of cargo value per passage,dummy,War-risk insurance for each Middle East passage (Hormuz; Bab el-Mandeb; Suez) at average geopolitical risk; scaled by the GPR level
+war_risk_surge_pct,1.0,% of cargo value per passage,dummy,Added in full when a passage's traffic has collapsed (PortWatch disruption = 1)
+holding_rate_per_year,0.10,fraction per year,dummy,Inventory cost of cargo time
+closed_threshold,0.90,disruption share,dummy,A passage counts as closed in today's conditions when its transits are down this much against 2023
+risk_aversion_pct,2.0,% of cargo value at risk score 100,dummy,Balanced ranking: adds risk score / 100 x this share of cargo value to the cost

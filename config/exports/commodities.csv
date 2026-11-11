@@ -1,0 +1,6 @@
+commodity_id,name,mode,land,value_usd_per_t,status,note
+crude,Crude oil,tanker,pipeline,550,estimated,About USD 75 a barrel at 7.33 barrels per tonne. Leaves by pipeline to a tanker terminal.
+polymers,Petrochemicals (polymers),container,truck,1100,estimated,"Polyethylene and polypropylene pellets, bagged in containers."
+fertilizers,Fertilizers,dry_bulk,truck,400,estimated,"Urea and phosphates (DAP, MAP) shipped in bulk carriers."
+aluminium,Aluminium and metals,container,truck,2500,estimated,Primary aluminium ingots and rolled products.
+manufactured,Manufactured goods,container,truck,5000,dummy,Average value for factory products from MODON industrial cities.

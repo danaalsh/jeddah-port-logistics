@@ -1,0 +1,6 @@
+site_id,name,type,lat,lon,commodities,source
+ABQ,Abqaiq oil processing,export_hub,25.929,49.689,crude,OpenStreetMap (Abqaiq oil-processing facility)
+JUB,Jubail Industrial City,export_hub,27.000,49.550,polymers|fertilizers|aluminium,approximate centre of the Royal Commission industrial area
+RAK,Ras Al-Khair (Ma'aden),export_hub,27.501,49.139,fertilizers|aluminium,OpenStreetMap (Ma'aden alumina and phosphate plant)
+YNB,Yanbu Industrial City,export_hub,23.958,38.283,polymers,approximate (Yanbu industrial area)
+RAB,Rabigh (Petro Rabigh),export_hub,22.719,39.017,polymers,OpenStreetMap (Petro Rabigh complex)

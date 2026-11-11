@@ -7,3 +7,4 @@ osmium>=4.0
 requests
 matplotlib
 pytest
+xlrd

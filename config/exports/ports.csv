@@ -1,0 +1,15 @@
+port_key,portwatch_id,name,country,sea_area,modes,note
+RTA,port1091,Ras Tanura,SAU,Gulf (inside Hormuz),tanker,Crude terminal (PortWatch: 100% tanker exports)
+JUA,port526,Juaymah,SAU,Gulf (inside Hormuz),tanker,Crude terminal (100% tanker)
+YKF,port570,Yanbu King Fahd Port,SAU,Red Sea,tanker,End of the East-West crude pipeline (96% tanker)
+RAB,port1081,Rabigh,SAU,Red Sea,tanker,Refinery and petrochemical terminal (99% tanker)
+JUB,port24,Jubail,SAU,Gulf (inside Hormuz),tanker|dry_bulk|container,Mixed (69% tanker; 19% dry bulk; 10% container)
+RAK,port1089,Ras Al-Khair,SAU,Gulf (inside Hormuz),dry_bulk,Ma'aden fertilizer and alumina port (81% dry bulk)
+DMM,port275,Dammam,SAU,Gulf (inside Hormuz),container|dry_bulk,King Abdulaziz Port (86% dry bulk exports; main eastern container port)
+YNC,port1408,Yanbu Commercial Port,SAU,Red Sea,dry_bulk,91% dry bulk exports
+JED,port518,Jeddah Islamic Port,SAU,Red Sea,container,93% container exports
+KAP,port2031,King Abdullah Port,SAU,Red Sea,container|dry_bulk,54% container; 43% dry bulk
+KFK,port561,Khor Fakkan,ARE,Gulf of Oman (outside Hormuz),container,UAE east-coast container port
+SOH,port988,Sohar,OMN,Gulf of Oman (outside Hormuz),container|dry_bulk,Oman; container and bulk
+DUQ,port984,Duqm,OMN,Arabian Sea,container|dry_bulk,Oman
+SLL,port746,Salalah,OMN,Arabian Sea,container,Oman container hub
