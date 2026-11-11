@@ -64,6 +64,13 @@ Direct download link for any file: `https://github.com/danaalsh/jeddah-port-logi
 
 `styles/` holds the QGIS layer styles (`.qml`); notebook section 8 re-applies them to a rebuilt GeoPackage.
 
+## Other data in the repository
+
+| File | Content |
+|---|---|
+| `data/modon/modon_services_2025.csv` | MODON services guide 2025: 69 services with Arabic text, English name and category (translated by Claude; check against the Arabic), number of steps and required documents, whether the industrial city's official decides, and logistics-related services (evening truck entry, equipment transport). Built by `scripts/modon_services.py`. Evidence for H2c. |
+| `data/seed/` | PortWatch history used to start the incremental refresh |
+
 ## Attribution
 
 - Road network: © OpenStreetMap contributors, available under the [Open Database License](https://www.openstreetmap.org/copyright).
