@@ -11,3 +11,6 @@ truck_teu_per_truck,2,TEU per truck,estimated,,One 40-foot container (2 TEU) per
 truck_usd_per_km,1.2,USD per truck-km,dummy,,"Fuel, tyres, maintenance, depreciation. Replace with TGA freight rates or interview figures."
 truck_usd_per_hour,20,USD per truck-hour,dummy,,Driver and time-based truck costs; also charged while waiting at borders.
 truck_max_kph,80,km/h,dummy,,Heavy-vehicle speed cap used for truck travel time; set from the regulation you cite.
+tonnes_per_teu,10,tonnes per loaded TEU,estimated,,Converts PortWatch container import tonnes to TEU. Typical loaded TEU carries 8-14 t.
+industrial_share_of_container_imports,0.30,fraction,dummy,,Share of Saudi container imports bound for MODON industrial cities (raw materials and inputs). Replace with interview or GASTAT evidence.
+asia_share_of_container_imports,0.70,fraction,dummy,,Share of those imports from Asia (rest from Europe). Replace with GASTAT imports by origin.
