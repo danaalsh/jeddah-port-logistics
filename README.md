@@ -30,9 +30,10 @@ The model picks the option with the lowest **generalised cost**: money plus time
 | `config/costs.csv` | Cost parameters. Most are placeholders marked `dummy`; replace them with sourced figures and fill in `source`. |
 | `config/ports.csv` | Ports in the model (PortWatch IDs), handling cost and dwell days |
 | `config/border_crossings.csv` | Border crossings (location from OSM border posts), delay and fee |
-| `config/destinations.csv` | Cities; OSM-named industrial cities are added automatically, and `MyDrive/jeddah_port/sites.csv` adds your own sites |
+| `config/destinations.csv` | 12 major cities; `MyDrive/jeddah_port/sites.csv` adds your own sites |
+| `config/industrial_cities_modon.csv` | The 37 MODON industrial cities (March 2026): developed, total and allocated area, occupancy, and **active area** (developed x occupancy) used to weight results. Location from OSM where the city could be matched; `location_method` says how (`osm_name_match`, `osm_probable`, `town_centre`), and the last two should be checked. Built by `scripts/modon_cities.py`. |
 
-**Limitations of this first version:** costs are placeholders; ports and borders have no capacity limits or congestion; only 12 Saudi industrial cities are named clearly enough in OSM to be found (the MODON list will replace this); no rail; sea routes are shortest paths on a simplified maritime network.
+**Limitations of this first version:** costs are placeholders; ports and borders have no capacity limits or congestion; 22 of the 37 industrial cities are located approximately (probable OSM match or town centre); no rail; sea routes are shortest paths on a simplified maritime network.
 
 Tests: `python -m pytest tests` (routing and border-delay checks on a hand-built network).
 
