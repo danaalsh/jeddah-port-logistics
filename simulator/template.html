@@ -1,0 +1,1178 @@
+<title>Saudi Import Route Simulator</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Leaflet 1.9.4 stylesheet (BSD-2-Clause, (c) 2010-2023 Volodymyr Agafonkin, (c) 2010-2011 CloudMade); image rules removed */
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+
+.leaflet-tile::selection {
+	background: transparent;
+}
+
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+
+
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	display: inline-block;
+	position: absolute;
+	}
+
+
+
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; 
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; 
+	pointer-events: auto;
+	}
+
+
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+
+.leaflet-default-icon-path { 
+	}
+
+
+
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+
+
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+
+
+@media print {
+	
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+</style>
+<style>
+/* Layout: control rail on the left, results (numbers, map, port shift, tables) on the right; one column on phones */
+:root {
+  --bg: #f5f6f4; --panel: #ffffff; --ink: #14201f; --ink-2: #4b5755; --ink-3: #7b8684;
+  --line: #dde2df; --sea: #e4ecee; --land: #fbfaf6; --land-edge: #c9cfcb; --road: #c4c9c4;
+  --accent: #0f6f7a; --accent-soft: #d9ecee; --warn: #b4462b; --warn-soft: #f7e3dc; --good: #2e7d4a;
+  --g1: #2a78d6; --g2: #eb6834; --g3: #1baf7a; --g4: #eda100;
+  --display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111817; --panel: #182120; --ink: #e8eeec; --ink-2: #b2bdba; --ink-3: #87938f;
+  --line: #2a3533; --sea: #13222a; --land: #1d2725; --land-edge: #34413e; --road: #3d4946;
+  --accent: #5cc2cc; --accent-soft: #173739; --warn: #ef8a6b; --warn-soft: #3a211a; --good: #6cc48c;
+  --g1: #3987e5; --g2: #d95926; --g3: #199e70; --g4: #c98500; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #111817; --panel: #182120; --ink: #e8eeec; --ink-2: #b2bdba; --ink-3: #87938f;
+  --line: #2a3533; --sea: #13222a; --land: #1d2725; --land-edge: #34413e; --road: #3d4946;
+  --accent: #5cc2cc; --accent-soft: #173739; --warn: #ef8a6b; --warn-soft: #3a211a; --good: #6cc48c;
+  --g1: #3987e5; --g2: #d95926; --g3: #199e70; --g4: #c98500; color-scheme: dark; }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 14px; line-height: 1.45; }
+.wrap { max-width: 1380px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 24px; margin-bottom: 18px; }
+h1 { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: 0.01em; margin: 0; text-wrap: balance; }
+.sub { color: var(--ink-2); max-width: 70ch; margin: 4px 0 0; }
+.stamp { font-family: var(--mono); font-size: 12px; color: var(--ink-3); }
+.grid { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* controls */
+aside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 16px; }
+.label { font-family: var(--display); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); margin: 0 0 8px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: inherit; font-size: 13px; padding: 5px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; }
+.chip:hover { border-color: var(--accent); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--panel); }
+.chip:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.toggles label { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.toggles .wide { grid-column: 1 / -1; }
+.slider { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; margin-bottom: 10px; }
+.slider label { font-size: 13px; }
+.slider output { font-family: var(--mono); font-size: 12px; color: var(--ink); text-align: right; font-variant-numeric: tabular-nums; }
+.slider input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); }
+.slider .hint { grid-column: 1 / -1; font-size: 11.5px; color: var(--ink-3); }
+.ph { font-size: 10.5px; font-family: var(--display); letter-spacing: 0.04em; text-transform: uppercase; color: var(--warn); background: var(--warn-soft); border-radius: 3px; padding: 0 4px; margin-left: 4px; }
+details > summary { cursor: pointer; font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); margin-bottom: 8px; }
+.reset { font: inherit; font-size: 13px; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 10px; color: var(--ink-2); cursor: pointer; }
+.reset:hover { color: var(--ink); border-color: var(--ink-3); }
+
+/* results */
+main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 640px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.kpi { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; min-width: 0; }
+.kpi .k { font-size: 12px; color: var(--ink-2); }
+.kpi .v { font-family: var(--display); font-size: 28px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.15; margin-top: 2px; }
+.kpi .d { font-family: var(--mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.up { color: var(--warn); } .down { color: var(--good); }
+.status { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.pill { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: 0.04em; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px; min-width: 0; }
+.card h2 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+.card .note { color: var(--ink-2); font-size: 13px; margin: 0 0 10px; max-width: 75ch; }
+.mapbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin-bottom: 8px; }
+#map { height: 520px; border-radius: 6px; background: var(--sea); }
+@media (max-width: 640px) { #map { height: 380px; } }
+.leaflet-container { background: var(--sea); font-family: var(--body); }
+.leaflet-tooltip { background: var(--panel); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0,0,0,.12); font-size: 12.5px; }
+.leaflet-tooltip-top:before { border-top-color: var(--line); }
+.leaflet-control-zoom a { background: var(--panel); color: var(--ink); border-color: var(--line) !important; }
+.leaflet-container .leaflet-control-attribution { background: var(--panel); color: var(--ink-3); opacity: 0.9; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 18px; height: 4px; border-radius: 2px; display: inline-block; }
+.sw.dash { background: repeating-linear-gradient(90deg, var(--ink-3) 0 5px, transparent 5px 9px); height: 2px; }
+
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 1100px) { .two { grid-template-columns: minmax(0, 1fr); } }
+.bars { display: flex; flex-direction: column; gap: 8px; }
+.barrow { display: grid; grid-template-columns: 150px minmax(0, 1fr) 64px; gap: 10px; align-items: center; }
+.barrow .name { font-size: 13px; }
+.barrow .name small { display: block; color: var(--ink-3); font-size: 11.5px; }
+.track { display: flex; flex-direction: column; gap: 3px; }
+.bar { height: 9px; border-radius: 0 4px 4px 0; min-width: 0; }
+.bar.base { opacity: 0.35; }
+.barrow .delta { font-family: var(--mono); font-size: 12px; text-align: right; font-variant-numeric: tabular-nums; }
+.barkey { display: flex; gap: 14px; font-size: 12px; color: var(--ink-3); margin-bottom: 8px; }
+.barkey i { display: inline-block; width: 16px; height: 8px; background: var(--ink-3); border-radius: 0 3px 3px 0; margin-right: 5px; vertical-align: middle; }
+.barkey i.base { opacity: 0.35; }
+
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+td.wrap { white-space: normal; min-width: 170px; }
+th { font-family: var(--display); font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-2); cursor: pointer; user-select: none; }
+th[aria-sort] { color: var(--ink); }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12.5px; }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.muted { color: var(--ink-3); }
+.assump { columns: 2 280px; column-gap: 28px; font-size: 13px; color: var(--ink-2); }
+.assump p { margin: 0 0 8px; break-inside: avoid; }
+footer { margin-top: 24px; font-size: 12px; color: var(--ink-3); max-width: 100ch; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Saudi Import Route Simulator</h1>
+      <p class="sub">Close a strait or a port and see which port each MODON industrial city switches to, what it costs per container, and what that adds up to per year. A first draft: most costs are placeholders.</p>
+    </div>
+    <div class="stamp" id="stamp"></div>
+  </header>
+
+  <div class="grid">
+    <aside aria-label="Scenario controls">
+      <section>
+        <p class="label">Scenario</p>
+        <div class="presets" id="presets"></div>
+      </section>
+      <section>
+        <p class="label">Closed sea passages</p>
+        <div class="toggles">
+          <label><input type="checkbox" id="c-ormuz"> Strait of Hormuz</label>
+          <label><input type="checkbox" id="c-babalmandab"> Bab el-Mandeb</label>
+          <label><input type="checkbox" id="c-suez"> Suez Canal</label>
+        </div>
+      </section>
+      <section>
+        <p class="label">Closed ports</p>
+        <div class="toggles" id="port-toggles"></div>
+      </section>
+      <section>
+        <p class="label">Border queues</p>
+        <div id="border-sliders"></div>
+      </section>
+      <details>
+        <summary>Costs and volumes</summary>
+        <div id="cost-sliders"></div>
+      </details>
+      <button class="reset" id="reset" type="button">Reset all settings</button>
+    </aside>
+
+    <main>
+      <div class="status" id="status"></div>
+      <div class="kpis" id="kpis"></div>
+
+      <section class="card">
+        <div class="mapbar">
+          <h2>Cheapest routes to industrial cities</h2>
+          <div class="presets" id="origin-pick" role="group" aria-label="Origin shown on the map"></div>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div id="map" role="img" aria-label="Map of the cheapest routes from the chosen origin to each industrial city"></div>
+      </section>
+
+      <div class="two">
+        <section class="card">
+          <h2>Where the cargo lands</h2>
+          <p class="note">Share of annual container volume to industrial cities handled by each port, both origins. Faint bar: normal operations.</p>
+          <div class="barkey"><span><i class="base"></i>Normal operations</span><span><i></i>This scenario</span></div>
+          <div class="bars" id="bars"></div>
+        </section>
+        <section class="card">
+          <h2>Extra cost by region</h2>
+          <p class="note">Annual logistics cost for imports to each region's industrial cities, against normal operations.</p>
+          <div class="tablewrap"><table id="regions"></table></div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Industrial cities</h2>
+        <p class="note">Asia origin. Click a column to sort. Cities marked * have an approximate location.</p>
+        <div class="tablewrap"><table id="cities"></table></div>
+      </section>
+
+      <section class="card">
+        <h2>How it works</h2>
+        <div class="assump" id="assump"></div>
+      </section>
+    </main>
+  </div>
+  <footer id="foot"></footer>
+</div>
+
+<script id="sim-data" type="application/json">/*SIM_DATA*/null</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(() => {
+const D = JSON.parse(document.getElementById("sim-data").textContent);
+// Lines are exported as [lon, lat] (GIS order); Leaflet wants [lat, lon]. Flip once; handles multi-part lines.
+const flip = line => Array.isArray(line[0][0]) ? line.map(flip) : line.map(([x, y]) => [y, x]);
+for (const k in D.sea) for (const o in D.sea[k]) for (const p in D.sea[k][o]) { const l = D.sea[k][o][p]; if (l) l.line = flip(l.line); }
+for (const p in D.road) for (const d in D.road[p]) D.road[p][d].line = flip(D.road[p][d].line);
+D.context_roads = D.context_roads.map(flip);
+const ORIGINS = D.origins;  // ["Asia (Shanghai)", "Europe (Rotterdam)"]
+const PORTS = D.ports, PORT = Object.fromEntries(PORTS.map(p => [p.port_key, p]));
+const CITIES = D.dests.filter(d => d.type === "industrial_city");
+const GROUP = p => p.country === "SAU" ? (p.sea_area === "Red Sea" ? 0 : 1) : (p.sea_area.startsWith("Gulf (inside") ? 2 : 3);
+const GROUP_NAMES = ["Saudi Red Sea ports", "Saudi Gulf ports", "UAE ports inside Hormuz", "UAE and Oman ports outside Hormuz"];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const groupColor = g => css(["--g1", "--g2", "--g3", "--g4"][g]);
+
+// ---------- settings ----------
+const BORDER_GROUPS = [
+  { id: "batha", label: "Al-Batha (Saudi Arabia - UAE)", match: n => n.startsWith("Al Batha") },
+  { id: "rubkhali", label: "Empty Quarter (Saudi Arabia - Oman)", match: n => n.startsWith("Empty Quarter") },
+  { id: "uaeomn", label: "UAE - Oman crossings", match: n => !n.startsWith("Al Batha") && !n.startsWith("Empty Quarter") },
+];
+const crossingDelay = id => D.crossings.find(c => BORDER_GROUPS.find(g => g.id === id).match(c.name)).delay_h;
+const SLIDERS = [  // id, label, param, min, max, step, unit, placeholder?
+  ["sea_usd_per_teu_per_1000nm", "Ocean freight", 50, 600, 10, "USD per TEU per 1,000 nm"],
+  ["war_risk_babalmandab_usd_per_teu", "War-risk premium, Bab el-Mandeb", 0, 2000, 50, "USD per TEU"],
+  ["war_risk_ormuz_usd_per_teu", "War-risk premium, Hormuz", 0, 2000, 50, "USD per TEU"],
+  ["suez_fee_usd_per_teu", "Suez Canal fee", 0, 500, 10, "USD per TEU"],
+  ["truck_usd_per_km", "Truck cost per km", 0.4, 4, 0.1, "USD per truck-km"],
+  ["truck_usd_per_hour", "Truck cost per hour", 5, 80, 1, "USD per truck-hour"],
+  ["cargo_value_usd_per_teu", "Cargo value", 5000, 300000, 5000, "USD per TEU; sets the cost of time"],
+  ["extra_dwell_red_sea", "Extra waiting at Saudi Red Sea ports", 0, 15, 0.5, "days (congestion)"],
+  ["industrial_share_of_container_imports", "Share of container imports going to industrial cities", 0.05, 1, 0.05, "fraction"],
+  ["asia_share_of_container_imports", "Share from Asia", 0, 1, 0.05, "fraction; the rest from Europe"],
+];
+const FRACTION = new Set(["industrial_share_of_container_imports", "asia_share_of_container_imports"]);
+const PLACEHOLDER = new Set(["sea_usd_per_teu_per_1000nm", "war_risk_babalmandab_usd_per_teu", "war_risk_ormuz_usd_per_teu",
+  "suez_fee_usd_per_teu", "truck_usd_per_km", "truck_usd_per_hour", "cargo_value_usd_per_teu",
+  "industrial_share_of_container_imports", "asia_share_of_container_imports"]);
+const defaults = () => ({
+  closed: new Set(), closedPorts: new Set(),
+  border: Object.fromEntries(BORDER_GROUPS.map(g => [g.id, crossingDelay(g.id)])),
+  p: { ...D.params, extra_dwell_red_sea: 0 },
+});
+let S = defaults();
+let mapOrigin = ORIGINS[0];
+
+const PRESETS = [
+  { id: "normal", label: "Normal operations", apply: s => s },
+  { id: "hormuz", label: "Hormuz closed", apply: s => (s.closed.add("ormuz"), s) },
+  { id: "bab", label: "Bab el-Mandeb closed", apply: s => (s.closed.add("babalmandab"), s) },
+  { id: "both", label: "Both straits closed", apply: s => (s.closed.add("ormuz"), s.closed.add("babalmandab"), s) },
+  { id: "suez", label: "Suez closed", apply: s => (s.closed.add("suez"), s) },
+  { id: "jed", label: "Jeddah port closed", apply: s => (s.closedPorts.add("JED"), s) },
+  { id: "hormuz-queues", label: "Hormuz closed, 48 h queue at Al-Batha", apply: s => (s.closed.add("ormuz"), s.border.batha = 48, s) },
+  { id: "hormuz-redsea", label: "Hormuz closed, Red Sea ports congested", apply: s => (s.closed.add("ormuz"), s.p.extra_dwell_red_sea = 5, s) },
+];
+let activePreset = "hormuz";
+
+// ---------- model ----------
+const seaKey = closed => ["ormuz", "babalmandab", "suez"].filter(x => closed.has(x)).join("+");
+const vot = p => p.cargo_value_usd_per_teu * p.holding_rate_per_year / 8760;
+const passageFee = (x, p) => ({ suez: p.suez_fee_usd_per_teu, babalmandab: p.war_risk_babalmandab_usd_per_teu,
+                                ormuz: p.war_risk_ormuz_usd_per_teu })[x] || 0;
+function borderOf(name, s) {
+  const g = BORDER_GROUPS.find(g => g.match(name));
+  const c = D.crossings.find(c => c.name === name);
+  return { h: s.border[g.id], fee: c.fee_usd_per_truck };
+}
+function option(origin, port, city, s, closed, closedPorts) {
+  const p = s.p;
+  if (closedPorts.has(port.port_key)) return null;
+  const sl = D.sea[seaKey(closed)][origin][port.port_key];
+  const rl = (D.road[port.port_key] || {})[city.dest_id];
+  if (!sl || !rl) return null;
+  const seaUsd = sl.nm / 1000 * p.sea_usd_per_teu_per_1000nm + sl.passages.reduce((a, x) => a + passageFee(x, p), 0);
+  const seaH = sl.nm / p.ship_speed_knots;
+  const dwell = port.dwell_days + (port.country === "SAU" && port.sea_area === "Red Sea" ? p.extra_dwell_red_sea : 0);
+  const portUsd = port.handling_usd_per_teu + dwell * p.storage_usd_per_teu_day;
+  let bh = 0, bfee = 0;
+  for (const b of rl.borders) { const x = borderOf(b, s); bh += x.h; bfee += x.fee; }
+  const roadH = rl.drive_h + bh;
+  const roadUsd = (rl.km * p.truck_usd_per_km + roadH * p.truck_usd_per_hour + bfee) / p.truck_teu_per_truck;
+  const usd = seaUsd + portUsd + roadUsd, hours = seaH + dwell * 24 + roadH;
+  return { port: port.port_key, usd, hours, gc: usd + hours * vot(p), seaUsd, portUsd, roadUsd, km: rl.km, borders: rl.borders,
+           passages: sl.passages };
+}
+function solve(s, closed, closedPorts) {
+  const res = {};
+  for (const o of ORIGINS) for (const c of CITIES) {
+    let best = null;
+    for (const port of PORTS) {
+      const x = option(o, port, c, s, closed, closedPorts);
+      if (x && (!best || x.gc < best.gc)) best = x;
+    }
+    res[o + "|" + c.dest_id] = best;
+  }
+  return res;
+}
+function volumes(p) {
+  const totalTeu = D.imports_tonnes / p.tonnes_per_teu * p.industrial_share_of_container_imports;
+  const w = CITIES.reduce((a, c) => a + c.active_m2, 0);
+  const share = { [ORIGINS[0]]: p.asia_share_of_container_imports, [ORIGINS[1]]: 1 - p.asia_share_of_container_imports };
+  const v = {};
+  for (const o of ORIGINS) for (const c of CITIES) v[o + "|" + c.dest_id] = totalTeu * c.active_m2 / w * share[o];
+  return { v, totalTeu };
+}
+
+// ---------- formatting ----------
+const fmt = (x, d = 0) => x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+const usdM = x => (x >= 0 ? "" : "−") + "USD " + fmt(Math.abs(x) / 1e6, Math.abs(x) >= 1e8 ? 0 : 1) + " m";
+const signed = (x, d = 0, unit = "") => (x > 0 ? "+" : x < 0 ? "−" : "±") + fmt(Math.abs(x), d) + unit;
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
+
+// ---------- map ----------
+let map, layers = {};
+function initMap() {
+  if (typeof L === "undefined") {
+    document.getElementById("map").innerHTML = '<p class="note" style="padding:16px">The map library did not load, so the map is hidden. All numbers and tables below still work.</p>';
+    return;
+  }
+  map = L.map("map", { zoomSnap: 0.25, attributionControl: true, worldCopyJump: false, preferCanvas: true })
+         .fitBounds([[15.5, 34], [32.5, 60]]);
+  map.attributionControl.setPrefix(false).addAttribution("Natural Earth · © OpenStreetMap contributors · IMF PortWatch");
+  layers.land = L.geoJSON(D.countries, { interactive: false, style: () => ({ color: css("--land-edge"), weight: 0.8, fillColor: css("--land"), fillOpacity: 1 }) }).addTo(map);
+  layers.roads = L.polyline(D.context_roads, { interactive: false, color: css("--road"), weight: 0.8 }).addTo(map);
+  layers.routes = L.layerGroup().addTo(map);
+  layers.points = L.layerGroup().addTo(map);
+}
+function drawMap(scen, base, vol) {
+  if (!map) return;
+  layers.routes.clearLayers(); layers.points.clearLayers();
+  const maxV = Math.max(...CITIES.map(c => vol.v[mapOrigin + "|" + c.dest_id] || 0), 1);
+  const seaDrawn = new Set();
+  for (const c of CITIES) {
+    const k = mapOrigin + "|" + c.dest_id, x = scen[k];
+    if (!x) continue;
+    const port = PORT[x.port], col = groupColor(GROUP(port));
+    const sl = D.sea[seaKey(S.closed)][mapOrigin][x.port];
+    if (!seaDrawn.has(x.port)) {
+      seaDrawn.add(x.port);
+      L.polyline(sl.line, { color: col, weight: 1.6, dashArray: "5 6", opacity: 0.9 })
+        .bindTooltip(`<b>${esc(mapOrigin)} → ${esc(port.name)}</b><br>${fmt(sl.nm)} nm by sea · via ${esc(sl.passages.join(", ") || "open sea")}`, { sticky: true })
+        .addTo(layers.routes);
+    }
+    const w = 1.5 + 4.5 * Math.sqrt((vol.v[k] || 0) / maxV);
+    const b = base[k];
+    L.polyline(D.road[x.port][c.dest_id].line, { color: col, weight: w, opacity: 0.85, lineCap: "round" })
+      .bindTooltip(cityTip(c, x, b), { sticky: true }).addTo(layers.routes);
+  }
+  for (const c of CITIES) {
+    const x = scen[mapOrigin + "|" + c.dest_id];
+    L.circleMarker([c.lat, c.lon], { radius: 3 + 5 * Math.sqrt(c.active_m2 / 2.1e7), color: css("--panel"), weight: 1.2,
+      fillColor: x ? css("--ink") : css("--warn"), fillOpacity: 0.9 })
+      .bindTooltip(x ? cityTip(c, x, base[mapOrigin + "|" + c.dest_id]) : `<b>${esc(c.name)}</b><br>No open route`, { direction: "top" })
+      .addTo(layers.points);
+  }
+  for (const p of PORTS) {
+    const closed = S.closedPorts.has(p.port_key);
+    L.circleMarker([p.lat, p.lon], { radius: 5.5, color: css("--panel"), weight: 1.5,
+      fillColor: closed ? css("--warn") : groupColor(GROUP(p)), fillOpacity: 1 })
+      .bindTooltip(`<b>${esc(p.name)}</b> (${p.country})<br>${esc(p.sea_area)}${closed ? "<br><b>Closed in this scenario</b>" : ""}`, { direction: "top" })
+      .addTo(layers.points);
+  }
+}
+function cityTip(c, x, b) {
+  const d = b ? x.usd - b.usd : 0;
+  return `<b>${esc(c.name)}</b><br>Port: ${esc(PORT[x.port].name)}${b && b.port !== x.port ? ` <span class="muted">(normally ${esc(PORT[b.port].name)})</span>` : ""}`
+    + `<br>USD ${fmt(x.usd)} per TEU${b ? ` (${signed(d)} vs normal)` : ""} · ${fmt(x.hours / 24, 1)} days`
+    + (x.borders.length ? `<br>Borders: ${esc(x.borders.join(", "))}` : "");
+}
+
+// ---------- render ----------
+function render() {
+  const scen = solve(S, S.closed, S.closedPorts);
+  // Normal operations: same prices, but no closures, default border queues and no extra port congestion
+  const N = defaults();
+  const base = solve({ ...S, border: N.border, p: { ...S.p, extra_dwell_red_sea: 0 } }, new Set(), new Set());
+  const vol = volumes(S.p);
+  let cost = 0, costB = 0, days = 0, daysB = 0, moved = 0, vSum = 0, lost = 0;
+  const shareS = {}, shareB = {};
+  for (const k in vol.v) {
+    const v = vol.v[k], x = scen[k], b = base[k];
+    if (!x) { lost += v; continue; }
+    vSum += v; cost += v * x.usd; costB += v * b.usd; days += v * x.hours / 24; daysB += v * b.hours / 24;
+    if (x.port !== b.port) moved += v;
+    shareS[x.port] = (shareS[x.port] || 0) + v; shareB[b.port] = (shareB[b.port] || 0) + v;
+  }
+  const extra = cost - costB, pct = costB ? 100 * extra / costB : 0;
+  const scenName = (PRESETS.find(p => p.id === activePreset) || { label: "Custom scenario" }).label;
+  const closedTxt = [...S.closed].map(x => ({ ormuz: "Hormuz", babalmandab: "Bab el-Mandeb", suez: "Suez" })[x])
+    .concat([...S.closedPorts].map(k => PORT[k].name));
+  document.getElementById("status").innerHTML =
+    `<span class="pill${closedTxt.length ? " warn" : ""}">${esc(scenName)}</span>`
+    + `<span>${closedTxt.length ? "Closed: " + esc(closedTxt.join(", ")) : "All passages and ports open"}</span>`
+    + (lost ? `<span class="pill warn">${fmt(100 * lost / (lost + vSum))}% of volume has no open route</span>` : "");
+  document.getElementById("kpis").innerHTML = [
+    ["Extra cost per year", usdM(extra), `${signed(pct, 1, "%")} on ${usdM(costB)} normal`, extra > 0.5 ? "up" : extra < -0.5 ? "down" : ""],
+    ["Average cost per TEU", "USD " + fmt(cost / vSum), `${signed(cost / vSum - costB / vSum)} vs normal`, ""],
+    ["Average door-to-door time", fmt(days / vSum, 1) + " days", `${signed(days / vSum - daysB / vSum, 1)} days vs normal`, ""],
+    ["Volume switching port", fmt(100 * moved / (vSum + lost)) + "%", `${fmt(vol.totalTeu / 1e3)}k TEU a year in total`, ""],
+  ].map(([k, v, d, cls]) => `<div class="kpi"><div class="k">${k}</div><div class="v ${cls}">${v}</div><div class="d">${d}</div></div>`).join("");
+
+  // port shares
+  const keys = PORTS.map(p => p.port_key).filter(k => shareS[k] || shareB[k]);
+  const tot = vSum || 1, totB = Object.values(shareB).reduce((a, b) => a + b, 0) || 1;
+  const maxShare = Math.max(...keys.map(k => Math.max((shareS[k] || 0) / tot, (shareB[k] || 0) / totB)), 0.01);
+  document.getElementById("bars").innerHTML = keys.sort((a, b) => (shareS[b] || 0) - (shareS[a] || 0)).map(k => {
+    const s = 100 * (shareS[k] || 0) / tot, b = 100 * (shareB[k] || 0) / totB, p = PORT[k], col = groupColor(GROUP(p));
+    return `<div class="barrow" title="${esc(p.name)}: ${fmt(b, 1)}% normally, ${fmt(s, 1)}% in this scenario">
+      <div class="name">${esc(p.name)}<small>${esc(p.country)} · ${esc(p.sea_area)}</small></div>
+      <div class="track"><div class="bar base" style="width:${b / maxShare}%;background:${col}"></div><div class="bar" style="width:${s / maxShare}%;background:${col}"></div></div>
+      <div class="delta">${fmt(s)}%<br><span class="muted">${signed(s - b)} pt</span></div></div>`;
+  }).join("");
+
+  // regions
+  const reg = {};
+  for (const c of CITIES) for (const o of ORIGINS) {
+    const k = o + "|" + c.dest_id, v = vol.v[k], x = scen[k], b = base[k];
+    const r = reg[c.region] || (reg[c.region] = { teu: 0, base: 0, scen: 0 });
+    r.teu += v; r.base += v * b.usd; r.scen += x ? v * x.usd : NaN;
+  }
+  const rows = Object.entries(reg).sort((a, b) => (b[1].scen - b[1].base) - (a[1].scen - a[1].base));
+  document.getElementById("regions").innerHTML = `<thead><tr><th>Region</th><th class="n">TEU a year</th><th class="n">Normal</th><th class="n">Scenario</th><th class="n">Extra</th></tr></thead><tbody>`
+    + rows.map(([n, r]) => `<tr><td>${esc(n)}</td><td class="n">${fmt(r.teu / 1e3, 1)}k</td><td class="n">${usdM(r.base)}</td>`
+      + `<td class="n">${isNaN(r.scen) ? "no route" : usdM(r.scen)}</td><td class="n ${r.scen - r.base > 0.5 ? "up" : ""}">${isNaN(r.scen) ? "–" : signed((r.scen - r.base) / 1e6, 1) + " m"}</td></tr>`).join("") + "</tbody>";
+
+  renderCities(scen, base, vol);
+  drawMap(scen, base, vol);
+}
+
+let sortKey = "extra", sortDir = -1;
+function renderCities(scen, base, vol) {
+  const o = ORIGINS[0];
+  const data = CITIES.map(c => {
+    const k = o + "|" + c.dest_id, x = scen[k], b = base[k];
+    return { c, x, b, extra: x ? x.usd - b.usd : Infinity, cost: x ? x.usd : Infinity, days: x ? x.hours / 24 : Infinity, teu: vol.v[k] };
+  });
+  const val = { city: r => r.c.name, region: r => r.c.region, port: r => r.x ? PORT[r.x.port].name : "", cost: r => r.cost,
+                extra: r => r.extra, days: r => r.days, teu: r => r.teu };
+  data.sort((a, b) => { const A = val[sortKey](a), B = val[sortKey](b); return (A > B ? 1 : A < B ? -1 : 0) * sortDir; });
+  const cols = [["city", "City", ""], ["region", "Region", ""], ["port", "Port (normally)", ""], ["cost", "USD per TEU", "n"],
+                ["extra", "Extra", "n"], ["days", "Days", "n"], ["teu", "TEU a year", "n"]];
+  const t = document.getElementById("cities");
+  t.innerHTML = "<thead><tr>" + cols.map(([k, l, cl]) => `<th class="${cl}" data-k="${k}" ${k === sortKey ? `aria-sort="${sortDir > 0 ? "ascending" : "descending"}"` : ""} tabindex="0">${l}${k === sortKey ? (sortDir > 0 ? " ↑" : " ↓") : ""}</th>`).join("") + "</tr></thead><tbody>"
+    + data.map(r => {
+      const p = r.x ? PORT[r.x.port] : null;
+      return `<tr><td>${esc(r.c.name)}${r.c.location_method !== "osm_name_match" ? '<span class="muted">*</span>' : ""}</td><td>${esc(r.c.region)}</td>`
+        + `<td class="wrap">${p ? `<span class="dot" style="background:${groupColor(GROUP(p))}"></span>${esc(p.name)}${r.b.port !== r.x.port ? ` <span class="muted">(${esc(PORT[r.b.port].name)})</span>` : ""}` : '<span class="up">no open route</span>'}</td>`
+        + `<td class="n">${r.x ? fmt(r.cost) : "–"}</td><td class="n ${r.extra > 0.5 ? "up" : ""}">${r.x ? signed(r.extra) : "–"}</td>`
+        + `<td class="n">${r.x ? fmt(r.days, 1) : "–"}</td><td class="n">${fmt(r.teu / 1e3, 1)}k</td></tr>`;
+    }).join("") + "</tbody>";
+  t.querySelectorAll("th").forEach(th => {
+    const go = () => { const k = th.dataset.k; sortDir = k === sortKey ? -sortDir : (["city", "region", "port"].includes(k) ? 1 : -1); sortKey = k; render(); };
+    th.addEventListener("click", go); th.addEventListener("keydown", e => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), go()));
+  });
+}
+
+// ---------- controls ----------
+function buildControls() {
+  const pre = document.getElementById("presets");
+  pre.innerHTML = PRESETS.map(p => `<button type="button" class="chip" id="preset-${p.id}" aria-pressed="${p.id === activePreset}">${esc(p.label)}</button>`).join("");
+  PRESETS.forEach(p => document.getElementById("preset-" + p.id).addEventListener("click", () => {
+    const keepP = { ...S.p, extra_dwell_red_sea: 0 };
+    S = defaults(); S.p = keepP; p.apply(S); activePreset = p.id; syncControls(); render();
+  }));
+  document.getElementById("port-toggles").innerHTML = PORTS.map(p =>
+    `<label><input type="checkbox" id="port-${p.port_key}"> ${esc(p.name.replace("King Abdulaziz Port ", "").replace(" Commercial Port", "").replace(" Islamic Port", ""))}</label>`).join("");
+  document.getElementById("border-sliders").innerHTML = BORDER_GROUPS.map(g => slider("b-" + g.id, g.label, 0, 96, 1, "hours of waiting per truck", true)).join("");
+  document.getElementById("cost-sliders").innerHTML = SLIDERS.map(([k, l, mn, mx, st, u]) => slider("p-" + k, l, mn, mx, st, u, PLACEHOLDER.has(k))).join("");
+  document.getElementById("origin-pick").innerHTML = ORIGINS.map((o, i) =>
+    `<button type="button" class="chip" id="origin-${i}" aria-pressed="${o === mapOrigin}">From ${esc(o.split(" (")[0])}</button>`).join("");
+  ORIGINS.forEach((o, i) => document.getElementById("origin-" + i).addEventListener("click", () => {
+    mapOrigin = o; ORIGINS.forEach((_, j) => document.getElementById("origin-" + j).setAttribute("aria-pressed", j === i)); render();
+  }));
+  const custom = () => { activePreset = "custom"; PRESETS.forEach(p => document.getElementById("preset-" + p.id).setAttribute("aria-pressed", "false")); };
+  ["ormuz", "babalmandab", "suez"].forEach(x => document.getElementById("c-" + x).addEventListener("change", e => {
+    e.target.checked ? S.closed.add(x) : S.closed.delete(x); custom(); render(); }));
+  PORTS.forEach(p => document.getElementById("port-" + p.port_key).addEventListener("change", e => {
+    e.target.checked ? S.closedPorts.add(p.port_key) : S.closedPorts.delete(p.port_key); custom(); render(); }));
+  BORDER_GROUPS.forEach(g => document.getElementById("b-" + g.id).addEventListener("input", e => {
+    S.border[g.id] = +e.target.value; showVal("b-" + g.id); custom(); render(); }));
+  SLIDERS.forEach(([k]) => document.getElementById("p-" + k).addEventListener("input", e => {
+    S.p[k] = +e.target.value; showVal("p-" + k); render(); }));
+  document.getElementById("reset").addEventListener("click", () => { S = defaults(); activePreset = "normal"; syncControls(); render(); });
+  document.getElementById("legend").innerHTML = GROUP_NAMES.map((n, g) => `<span><i class="sw" style="background:${groupColor(g)}"></i>${n}</span>`).join("")
+    + `<span><i class="sw dash"></i>Sea leg</span><span>Line width: TEU a year</span>`;
+}
+function slider(id, label, mn, mx, st, unit, ph) {
+  return `<div class="slider"><label for="${id}">${esc(label)}${ph ? '<span class="ph">placeholder</span>' : ""}</label><output id="${id}-v" for="${id}"></output>`
+    + `<input type="range" id="${id}" min="${mn}" max="${mx}" step="${st}"><span class="hint">${esc(unit)}</span></div>`;
+}
+function showVal(id) {
+  const el = document.getElementById(id), v = +el.value;
+  document.getElementById(id + "-v").textContent = id.startsWith("b-") ? v + " h" : FRACTION.has(id.slice(2)) ? fmt(100 * v) + "%" : fmt(v, v % 1 ? 1 : 0);
+}
+function syncControls() {
+  PRESETS.forEach(p => document.getElementById("preset-" + p.id).setAttribute("aria-pressed", p.id === activePreset));
+  ["ormuz", "babalmandab", "suez"].forEach(x => document.getElementById("c-" + x).checked = S.closed.has(x));
+  PORTS.forEach(p => document.getElementById("port-" + p.port_key).checked = S.closedPorts.has(p.port_key));
+  BORDER_GROUPS.forEach(g => { document.getElementById("b-" + g.id).value = S.border[g.id]; showVal("b-" + g.id); });
+  SLIDERS.forEach(([k]) => { document.getElementById("p-" + k).value = S.p[k]; showVal("p-" + k); });
+}
+function writeStatic() {
+  const m = D.meta;
+  document.getElementById("stamp").textContent = `Roads: OSM ${m.osm_date.slice(0, 10)} · Ports: PortWatch to ${m.portwatch_through} · MODON cities: March 2026`;
+  document.getElementById("assump").innerHTML = [
+    `<b>Route.</b> For each industrial city and origin (Asia via Shanghai, Europe via Rotterdam), every port in Saudi Arabia, the UAE and Oman is tried: sea leg + port handling and waiting + truck to the city. The cheapest, counting money and the cost of time at the cargo value, wins.`,
+    `<b>Closures.</b> A closed strait removes it from the shipping network: ships go the long way (around Africa) or the port becomes unreachable. A closed port is skipped.`,
+    `<b>Road.</b> Truck routes follow OpenStreetMap major roads, with truck speed capped at ${D.params.truck_max_kph} km/h. Border crossings add waiting time and fees. Road paths are fixed at the default costs; the sliders re-price them but do not re-route.`,
+    `<b>Volumes.</b> Saudi container imports (${fmt(D.imports_tonnes / 1e6, 1)} million tonnes a year, IMF PortWatch, 12 months before the Hormuz closure) at ${D.params.tonnes_per_teu} tonnes per TEU, times the share going to industrial cities, split between the 37 MODON cities by land in use (developed area × occupancy).`,
+    `<b>Placeholders.</b> Settings marked placeholder are not yet sourced. Treat money figures as illustrative until they are replaced with freight rates, port tariffs and interview figures.`,
+    `<b>Compared with what.</b> Normal operations uses the same prices (freight, trucks, fees, cargo value) with every passage and port open, default border queues and no extra congestion. So the extra cost is the effect of the closures, queues and congestion you set.`,
+    `<b>Not modelled yet.</b> Port and border capacity limits, rail, and day-to-day variation in delays.`,
+  ].map(t => `<p>${t}</p>`).join("");
+  document.getElementById("foot").textContent = "Built from the jeddah-port-logistics model (github.com/danaalsh/jeddah-port-logistics). Map: Natural Earth countries, © OpenStreetMap contributors (ODbL). Port data: IMF PortWatch. Industrial cities: MODON.";
+}
+
+writeStatic(); buildControls(); initMap(); PRESETS.find(p => p.id === activePreset).apply(S); syncControls(); render();
+const retheme = () => { if (map) { layers.land.setStyle({ color: css("--land-edge"), fillColor: css("--land") }); layers.roads.setStyle({ color: css("--road") }); } render(); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", retheme);
+new MutationObserver(retheme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
