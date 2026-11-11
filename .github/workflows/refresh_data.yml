@@ -46,6 +46,15 @@ jobs:
         continue-on-error: true
         run: python -u scripts/refresh_portwatch.py data_out data/seed
 
+      - name: Geopolitical Risk Index (Caldara and Iacoviello)
+        id: gpr
+        continue-on-error: true
+        run: |
+          base=https://www.matteoiacoviello.com/gpr_files
+          curl -sSfL --retry 3 -o data_out/gpr_monthly.xls "$base/data_gpr_export.xls"
+          curl -sSfL --retry 3 -o data_out/gpr_daily.xls "$base/data_gpr_daily_recent.xls"
+          ls -l data_out/gpr_*.xls
+
       - name: Publish to the data-latest release
         if: steps.osm.outcome == 'success' || steps.portwatch.outcome == 'success'
         env:
@@ -56,6 +65,7 @@ jobs:
             echo
             echo "- OpenStreetMap: ${{ steps.osm.outcome }} (snapshot $(cat data_out/osm_date.txt 2>/dev/null || echo 'n/a'))"
             echo "- PortWatch: ${{ steps.portwatch.outcome }}"
+            echo "- Geopolitical Risk Index: ${{ steps.gpr.outcome }}"
             echo
             echo "Files:"
             ls -l data_out | awk 'NR>1 {printf "- %s (%.1f MB)\n", $9, $5/1048576}'

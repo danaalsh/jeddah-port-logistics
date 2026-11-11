@@ -49,6 +49,7 @@ The **Refresh data** workflow (`.github/workflows/refresh_data.yml`) runs every 
 | `portwatch_ports_daily_SAU.csv` | IMF PortWatch | Daily ship calls and estimated trade by vessel type, Saudi ports, from 2019 |
 | `portwatch_ports_daily_ARE_OMN.csv` | IMF PortWatch | The same for UAE and Oman ports, from 2025 (to check where Gulf traffic went after Hormuz closed) |
 | `portwatch_chokepoints_daily.csv` | IMF PortWatch | Daily transits through ~28 chokepoints (Hormuz, Bab el-Mandeb, Suez, ...) |
+| `gpr_monthly.xls`, `gpr_daily.xls` | Geopolitical Risk Index, Caldara and Iacoviello (matteoiacoviello.com/gpr.htm) | Monthly global and country GPR (incl. Saudi Arabia) from 1900/1985; daily global GPR. Used for route risk scores |
 | `portwatch_ports_list.csv` | IMF PortWatch | ~2,000 ports with coordinates and trade shares |
 
 PortWatch's server cannot export the full daily tables reliably, so they are updated incrementally: each run starts from the copy in the release (or `data/seed/` on the first run), re-downloads the last two months plus anything newer one month at a time, and merges. A month that fails shows as a warning and keeps its previous rows.
