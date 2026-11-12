@@ -1,0 +1,54 @@
+name: Publish planner
+
+# Rebuilds the export route planner from the latest data and publishes it with GitHub Pages
+# (Settings -> Pages -> Source: GitHub Actions). Runs after each "Refresh data" run, when the
+# model or the page changes on main, and by hand from the Actions tab.
+on:
+  workflow_run:
+    workflows: ["Refresh data"]
+    types: [completed]
+  push:
+    branches: [main]
+    paths: ["sim/**", "config/**", "simulator/**", "scripts/build_planner.py", ".github/workflows/publish_planner.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install packages
+        run: pip install -q -r requirements.txt
+
+      - name: Build the planner
+        run: python -u scripts/build_planner.py build/site --data build/data --cache build/cache
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

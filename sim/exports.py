@@ -138,7 +138,16 @@ def sea_legs(ports, markets, closures):
     return out
 
 
-def _risk(passages, n_borders, dis, t):
+def gpr_note(gpr):
+    """One-line reason naming the GPR readings, or None when GPR is not loaded."""
+    if not gpr:
+        return None
+    parts = [f"{'world' if k == 'global' else 'Saudi Arabia'} higher than {v['percentile']:.0f}%"
+             for k, v in gpr.items()]
+    return f"Geopolitical risk index ({next(iter(gpr.values()))['month']}): " + ", ".join(parts) + " of months since 1985"
+
+
+def _risk(passages, n_borders, dis, t, note=None):
     """Risk score 0-100 and the reasons behind it."""
     parts, reasons = [], []
     for x in passages:
@@ -149,6 +158,8 @@ def _risk(passages, n_borders, dis, t):
             reasons.append(f"{PASSAGES[x][0]}: traffic down {d * 100:.0f}% on 2023")
         elif x in MIDDLE_EAST:
             reasons.append(f"{PASSAGES[x][0]}: traffic normal; Middle East strait")
+    if note and t >= 0.5 and any(x in MIDDLE_EAST for x in passages):
+        reasons.append(note)
     if n_borders:
         reasons.append(f"{n_borders} border crossing{'s' if n_borders > 1 else ''} by truck")
     score = 100 * (1 - prod(1 - r for r in parts) * (1 - BORDER_RISK) ** n_borders)
@@ -157,7 +168,7 @@ def _risk(passages, n_borders, dis, t):
 
 def options(cfg, land, seas, dis, gpr, closures):
     """Every feasible (site, commodity, market, condition, port) option, plus blocked ones for 'today'."""
-    p, t, mult = cfg["p"], tension(gpr), gpr_price_multiplier(gpr)
+    p, t, mult, note = cfg["p"], tension(gpr), gpr_price_multiplier(gpr), gpr_note(gpr)
     com = cfg["commodities"].set_index("commodity_id")
     ports = cfg["ports"].set_index("port_key")
     rows = []
@@ -184,7 +195,7 @@ def options(cfg, land, seas, dis, gpr, closures):
                             continue
                         rows.append({**base, "status": "open", **_cost(c, leg, r, p, dis_c, mult),
                                      **dict(zip(("risk", "reasons"),
-                                                _risk(r["passages"], len(leg["borders"]), dis_c, t)))})
+                                                _risk(r["passages"], len(leg["borders"]), dis_c, t, note)))})
     return pd.DataFrame(rows)
 
 
